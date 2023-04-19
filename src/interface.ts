@@ -13,7 +13,7 @@ interface ILocaleProperties {
   name: string;
   iso: string;
   isoCurrencyLocale: string;
-  countryLocale: string
+  countryLocale: string;
 }
 
 interface ILocale {
@@ -22,4 +22,18 @@ interface ILocale {
 
 interface walletForm {
   address: string;
+}
+
+interface ITableHeaders {
+  hexAddress: string;
+  bech32Address: string;
+  accountNumber: string;
+}
+
+interface IList {
+  accounts: {
+    "@type": string;
+    base_account: { [key: string]: string };
+    code_hash: string;
+  }[];
 }

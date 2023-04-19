@@ -1,3 +1,9 @@
+/**
+ * This method will check if the number is in Hex format or not
+ *
+ * @param {hex} hex hex in number format
+ * @returns {boolean} returns true or false
+ */
 
 export const checkIfNumberIsHex = (hex: string): boolean => {
   return window.web3.utils.isHexStrict(hex);

@@ -6,12 +6,15 @@ import Web3 from "web3";
 import { toast } from "react-toastify";
 import { Inter } from "next/font/google";
 
-import { Browser } from "../messages";
+import { Browser } from "@/messages";
 import { checkIfNumberIsHex, convertToCrypto } from "@/helpers/decimalHelpers";
 import { checkIfStringContains } from "@/helpers/stringHelper";
-import { getTokenPrices } from "@/helpers/getTokenPrices";
-import { getCurrencyInfoByLanguageLocale } from "@/helpers/currencyHelper";
-import { locales } from "@/consts";
+import {
+  formatCurrency,
+  getCurrencyInfoByLanguageLocale,
+  getCurrentCryptoRate,
+} from "@/helpers/currencyHelper";
+import { defaultCurrencyIso, locales } from "@/consts";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,7 +34,7 @@ const fetchBalanceForCosmAddress = async (address: string): Promise<number> => {
     throw new Error(body.message);
   }
   const { balances } = body;
-  return balances[0].amount || 0;
+  return balances[0].amount;
 };
 
 /**
@@ -45,58 +48,49 @@ const fetchBalanceForHexAddress = async (address: string): Promise<number> => {
   return balance || 0;
 };
 
-const formatBalance = (balance: number, currencyLocale: ILocaleProperties) => {
-  return new Intl.NumberFormat(currencyLocale.countryLocale, {
-    style: 'currency',
-    currency: currencyLocale.isoCurrencyLocale,
-  }).format(balance);
-};
-
 export default function ViewBalance() {
-  // getting browser language
-  // TODO: navigator in undefined
-  const language = navigator.language;
-  const currencyLocale = getCurrencyInfoByLanguageLocale(language);
+  const currencyLocale = getCurrencyInfoByLanguageLocale({
+    currencyIso: defaultCurrencyIso,
+  });
   const [currency, setCurrency] = useState(currencyLocale.iso);
   const [balance, setBalance] = useState(0);
+  const [formatedBalance, setFormatedBalance] = useState("");
   const {
     register,
     formState: { errors },
     handleSubmit,
   } = useForm<walletForm>();
+
+  // Will format and convert the crypto value
+  const convertAndFormatCryptoValue = async (amount: number) => {
+    const currentCryptoValue = await getCurrentCryptoRate(currency);
+    const cryptoValue = convertToCrypto(amount);
+    const totalCryptoValue = cryptoValue * currentCryptoValue;
+    setBalance(totalCryptoValue);
+    const formattedCurrency = formatCurrency(totalCryptoValue, currencyLocale);
+    setFormatedBalance(formattedCurrency);
+  };
+
   // submitting the form
   const onSubmit: SubmitHandler<walletForm> = async (data) => {
     const { address } = data;
-    const currentCryptoValue = await getTokenPrices(currency);
     if (checkIfStringContains(address)) {
       const amount = await fetchBalanceForCosmAddress(address);
-      const cryptoValue = convertToCrypto(amount);
-      const balance = cryptoValue * currentCryptoValue;
-      setBalance(balance);
+      await convertAndFormatCryptoValue(amount);
     } else if (checkIfNumberIsHex(address)) {
       const amount = await fetchBalanceForHexAddress(address);
-      const cryptoValue = convertToCrypto(amount);
-      const balance = cryptoValue * currentCryptoValue;
-      setBalance(balance);
+      await convertAndFormatCryptoValue(amount);
     }
   };
-
-  const changeDefaultCurrency = (event: any) => {
+  // @ts-ignore
+  const changeDefaultCurrency = (event) => {
     setCurrency(event.target.value);
+    const currencyLocale = getCurrencyInfoByLanguageLocale({
+      currencyIso: event.target.selectedOptions[0].dataset.attribute,
+    });
+    const formattedCurrency = formatCurrency(balance, currencyLocale);
+    setFormatedBalance(formattedCurrency);
   };
-  /* check if the browser supports crypto */
-  useEffect(() => {
-    (async () => {
-      if (window.ethereum) {
-        const provider = new Web3.providers.HttpProvider(
-          `${process.env.NEXT_PUBLIC_NODE_URL}`
-        );
-        window.web3 = new Web3(provider);
-      } else {
-        toast.info(Browser.NOT_SUPPORTED);
-      }
-    })();
-  }, []);
 
   return (
     <>
@@ -110,7 +104,11 @@ export default function ViewBalance() {
               className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
             >
               {Object.entries(locales).map(([key, value]) => (
-                <option value={value.iso} key={value.iso}>
+                <option
+                  value={value.iso}
+                  key={value.countryLocale}
+                  data-attribute={value.countryLocale}
+                >
                   {value.name}
                 </option>
               ))}
@@ -179,7 +177,8 @@ export default function ViewBalance() {
               <h2
                 className={`mt-6 text-center text-3xl font-extrabold text-gray-900 ${inter.className}`}
               >
-                {balance > 0 && `The currenct balance is ${formatBalance(balance, currencyLocale)}`}
+                {formatedBalance &&
+                  `The currenct balance is ${formatedBalance}`}
               </h2>
             </div>
           </div>
