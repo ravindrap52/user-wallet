@@ -34,7 +34,7 @@ const fetchBalanceForCosmAddress = async (address: string): Promise<number> => {
     throw new Error(body.message);
   }
   const { balances } = body;
-  return balances[0].amount;
+  return balances.length ? balances[0].amount : 0;
 };
 
 /**
@@ -45,7 +45,7 @@ const fetchBalanceForCosmAddress = async (address: string): Promise<number> => {
  */
 const fetchBalanceForHexAddress = async (address: string): Promise<number> => {
   const balance = await window.web3.eth.getBalance(address);
-  return balance || 0;
+  return balance;
 };
 
 export default function ViewBalance() {

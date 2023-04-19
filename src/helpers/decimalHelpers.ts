@@ -17,5 +17,5 @@ export const checkIfNumberIsHex = (hex: string): boolean => {
  */
 
 export const convertToCrypto = (decimal: number): number => {
-    return Number(window.web3.utils.fromWei(decimal, 'ether'));
+    return Number(window.web3.utils.fromWei(String(decimal), 'ether'));
 }
