@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Home renders a home page 1`] = `
+<div>
+  <main
+    class="custom-grid test"
+  >
+    <header
+      class="flex items-center justify-between"
+    >
+      <div>
+        <img
+          alt="logo"
+          data-nimg="1"
+          decoding="async"
+          height="256"
+          loading="lazy"
+          src="/_next/image?url=%2Fimg.jpg&w=640&q=75"
+          srcset="/_next/image?url=%2Fimg.jpg&w=256&q=75 1x, /_next/image?url=%2Fimg.jpg&w=640&q=75 2x"
+          style="color: transparent;"
+          width="256"
+        />
+      </div>
+    </header>
+    <section
+      class="text-center"
+    >
+      <div
+        class="pb-4"
+      >
+        <h1
+          class="text-white text-2xl className"
+        >
+          What is a Crypto Wallet?
+        </h1>
+        <p
+          class="text-white text-base className"
+        >
+          Cryptocurrency wallets store users public and private keys, while providing an easy-to-use interface to manage crypto balances.
+        </p>
+      </div>
+      <div>
+        <a
+          class="px-10 py-3  text-white bg-[#ed4e33] rounded-md"
+          href="/viewBalance"
+        >
+          Get Started
+        </a>
+      </div>
+    </section>
+    <footer>
+      <p
+        class="text-white text-center className"
+      >
+        © All rights reserved
+      </p>
+    </footer>
+  </main>
+</div>
+`;
