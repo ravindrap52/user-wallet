@@ -1,10 +1,7 @@
 "use client";
 
-import { Browser } from "@/messages";
 import { evmosToEth } from "@evmos/address-converter";
-import { useEffect } from "react";
-import { toast } from "react-toastify";
-import Web3 from "web3";
+
 import Link from "next/link";
 
 export default function Table({
@@ -14,18 +11,6 @@ export default function Table({
   headers: ITableHeaders;
   accounts: IList;
 }) {
-  useEffect(() => {
-    (async () => {
-      if (window.ethereum) {
-        const provider = new Web3.providers.HttpProvider(
-          `${process.env.NEXT_PUBLIC_NODE_URL}`
-        );
-        window.web3 = new Web3(provider);
-      } else {
-        toast.info(Browser.NOT_SUPPORTED);
-      }
-    })();
-  }, []);
   return (
     <table className="min-w-full">
       <thead>
@@ -74,7 +59,7 @@ export default function Table({
             </td>
             <td className="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-500 text-sm leading-5">
               <Link
-              className="hover:underline"
+                className="hover:underline"
                 href={{
                   pathname: "/dashboard/transactionDetails",
                   query: {
